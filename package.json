@@ -1,0 +1,61 @@
+{
+  "name": "trace",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node -e \"const fs=require('fs');fs.writeFileSync('dist-electron/preload.mjs', 'import { contextBridge, ipcRenderer } from \\\"electron\\\";\\n\\ncontextBridge.exposeInMainWorld(\\\"traceAPI\\\", {\\n  generate(job) { return ipcRenderer.invoke(\\\"trace:generate\\\", job); },\\n  getAIStatus() { return ipcRenderer.invoke(\\\"trace:get-ai-status\\\"); },\\n  startAI() { return ipcRenderer.invoke(\\\"trace:start-ai\\\"); },\\n  onAIStatus(callback) { const listener = (_event, status) => callback(status); ipcRenderer.on(\\\"trace:ai-status\\\", listener); return () => ipcRenderer.off(\\\"trace:ai-status\\\", listener); }\\n});\\n')\"",
+    "package": "npm run build && set CSC_IDENTITY_AUTO_DISCOVERY=false&& electron-builder",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "konva": "^10.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-konva": "^18.2.16",
+    "use-image": "^1.1.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.64",
+    "@types/react-dom": "^18.2.21",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6",
+    "vite-plugin-electron": "^0.28.8",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  },
+  "build": {
+    "appId": "com.trace.app",
+    "productName": "TRACE",
+    "files": [
+      "dist",
+      "dist-electron"
+    ],
+    "extraResources": [
+      {
+        "from": "ai",
+        "to": "ai"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico"
+    }
+  }
+}
